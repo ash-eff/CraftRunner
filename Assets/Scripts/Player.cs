@@ -20,12 +20,16 @@ public class Player : MonoBehaviour
     private bool canSlash = true;
     private bool secondJump = false;
 
+    private Animator anim;
+    private Animator scissorAnim;
     private GroundCheck groundCheck;
     private Rigidbody2D rb2d;
     private Camera cam;
 
     private void Awake()
     {
+        anim = GetComponent<Animator>();
+        scissorAnim = GetComponent<Animator>();
         cam = Camera.main;
         groundCheck = GetComponentInChildren<GroundCheck>();
         rb2d = GetComponent<Rigidbody2D>();
@@ -56,6 +60,36 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.S) && !secondJump && !groundCheck.isGrounded)
         {
             StartCoroutine(Drop(dropForce));
+        }
+
+        if(rb2d.velocity.y == 0f)
+        {
+            anim.SetBool("Running", true);
+            anim.SetBool("Jumping", false);
+            anim.SetBool("Falling", false);
+            scissorAnim.SetBool("Running", true);
+            scissorAnim.SetBool("Jumping", false);
+            scissorAnim.SetBool("Falling", false);
+        }
+
+        if (rb2d.velocity.y > 1f)
+        {
+            anim.SetBool("Running", false);
+            anim.SetBool("Jumping", true);
+            anim.SetBool("Falling", false);
+            scissorAnim.SetBool("Running", false);
+            scissorAnim.SetBool("Jumping", true);
+            scissorAnim.SetBool("Falling", false);
+        }
+
+        if (rb2d.velocity.y < 0f)
+        {
+            anim.SetBool("Running", false);
+            anim.SetBool("Jumping", false);
+            anim.SetBool("Falling", true);
+            scissorAnim.SetBool("Running", false);
+            scissorAnim.SetBool("Jumping", false);
+            scissorAnim.SetBool("Falling", true);
         }
     }
 
