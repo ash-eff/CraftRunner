@@ -14,14 +14,16 @@ public class Player : MonoBehaviour
     private float slashTime;
     [SerializeField]
     private GameObject sword;
+    [SerializeField]
+    private GameObject spark;
 
     private float camHeight;
 
-    private bool canSlash = true;
+    public bool canSlash = true;
     private bool secondJump = false;
+    bool dropped = false;
 
     private Animator anim;
-    private Animator scissorAnim;
     private GroundCheck groundCheck;
     private Rigidbody2D rb2d;
     private Camera cam;
@@ -29,7 +31,6 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         anim = GetComponent<Animator>();
-        scissorAnim = GetComponent<Animator>();
         cam = Camera.main;
         groundCheck = GetComponentInChildren<GroundCheck>();
         rb2d = GetComponent<Rigidbody2D>();
@@ -59,37 +60,40 @@ public class Player : MonoBehaviour
         // can only drop on second jump
         if(Input.GetKeyDown(KeyCode.S) && !secondJump && !groundCheck.isGrounded)
         {
-            StartCoroutine(Drop(dropForce));
+            Drop(dropForce);
         }
 
-        if(rb2d.velocity.y == 0f)
+        if(rb2d.velocity.y == 0f && canSlash)
         {
+            if (dropped)
+            {
+                dropped = false;
+                StartCoroutine(Camera.main.GetComponent<CameraShake>().Shake(.1f, .1f));
+            }
+
+
             anim.SetBool("Running", true);
             anim.SetBool("Jumping", false);
             anim.SetBool("Falling", false);
-            scissorAnim.SetBool("Running", true);
-            scissorAnim.SetBool("Jumping", false);
-            scissorAnim.SetBool("Falling", false);
+            spark.SetActive(true);
         }
 
-        if (rb2d.velocity.y > 1f)
+        if (rb2d.velocity.y > 1f && canSlash)
         {
+
             anim.SetBool("Running", false);
             anim.SetBool("Jumping", true);
             anim.SetBool("Falling", false);
-            scissorAnim.SetBool("Running", false);
-            scissorAnim.SetBool("Jumping", true);
-            scissorAnim.SetBool("Falling", false);
+            spark.SetActive(false);
         }
 
-        if (rb2d.velocity.y < 0f)
+        if (rb2d.velocity.y < 0f && canSlash)
         {
+
             anim.SetBool("Running", false);
             anim.SetBool("Jumping", false);
             anim.SetBool("Falling", true);
-            scissorAnim.SetBool("Running", false);
-            scissorAnim.SetBool("Jumping", false);
-            scissorAnim.SetBool("Falling", true);
+            spark.SetActive(false);
         }
     }
 
@@ -98,48 +102,29 @@ public class Player : MonoBehaviour
         rb2d.velocity = Vector2.up * _force;
     }
 
-    IEnumerator Drop(float _force)
+    void Drop(float _force)
     {
-        bool dropping = true;
-        while (dropping)
-        {
-            rb2d.velocity = Vector2.down * _force;
-
-            yield return null;
-
-            if (transform.position.y < -3.8f)
-            {
-                break;
-            }
-        }
-
-        StartCoroutine(Camera.main.GetComponent<CameraShake>().Shake(.1f, .1f));
+        dropped = true;
+        rb2d.velocity = Vector2.down * _force;     
     }
 
     IEnumerator Slash()
     {
+        spark.SetActive(false);
         canSlash = false;
+        float timer = slashTime;
+        anim.SetBool("Slash", true);
         sword.SetActive(true);
-        yield return new WaitForSeconds(slashTime);
+        while (timer > 0f)
+        {
+            timer -= Time.deltaTime;
+            anim.SetBool("Running", false);
+            anim.SetBool("Jumping", false);
+            anim.SetBool("Falling", false);
+            yield return null;
+        }
         sword.SetActive(false);
+        anim.SetBool("Slash", false);
         canSlash = true;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if(collision.transform.tag == "Star")
-        {
-            Destroy(collision.gameObject);
-        }
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.transform.tag == "Alien")
-        {
-            Debug.Log("You Died");
-            // for now
-            Destroy(gameObject);
-        }
     }
 }

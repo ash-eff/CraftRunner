@@ -7,9 +7,11 @@ public class AlienShoot : MonoBehaviour
     [SerializeField]
     private float speed;
     [SerializeField]
-    private ParticleSystem warningPart;
+    private GameObject sparks;
     [SerializeField]
     private GameObject laser;
+    [SerializeField]
+    private LayerMask damageLayer;
 
     private float stopPosX;
     private float screenWidthAndOffset;
@@ -22,7 +24,7 @@ public class AlienShoot : MonoBehaviour
     {
         cam = Camera.main;
         screenWidthAndOffset = cam.aspect * cam.orthographicSize + 2f;
-        stopPosX = cam.aspect * cam.orthographicSize - 1f;
+        stopPosX = cam.aspect * cam.orthographicSize - 2f;
         transform.position = new Vector3(screenWidthAndOffset, -3.5f);
     }
 
@@ -35,7 +37,7 @@ public class AlienShoot : MonoBehaviour
         else if (moving)
         {
             moving = false;
-            StartCoroutine(Shoot());
+            StartCoroutine(Warning());
         }
 
         if(transform.position.y > cam.orthographicSize + 1)
@@ -44,27 +46,36 @@ public class AlienShoot : MonoBehaviour
         }
     }
 
+    IEnumerator Warning()
+    {
+        sparks.SetActive(true);
+        yield return new WaitForSeconds(1);
+        sparks.SetActive(false);
+        StartCoroutine(Shoot());
+    }
+
     IEnumerator Shoot()
     {
-        bool shooting = true;
-        while(shooting)
+        float timer = 1f;
+        laser.SetActive(true);
+        while (timer > 0)
         {
-            warningPart.Play();
-            yield return new WaitForSeconds(1f);
-            laser.SetActive(true);
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector3.left, 25f);
-            Debug.DrawRay(transform.position, Vector3.left * 25f, Color.red, 1f);
+            timer -= Time.deltaTime;
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector3.left, 25f, damageLayer);
+            Debug.DrawRay(transform.position, Vector3.left * 25f, Color.red);
             if (hit)
             {
-                if(hit.transform.tag == "Player")
+                Debug.Log("Hit: " + hit.transform.name);
+                if(hit.transform.tag == "DamageTrigger")
                 {
-                    Destroy(hit.transform.gameObject);
+                    Debug.Log("Hit");
+                    Destroy(hit.transform.parent.gameObject);
                 }
             }
-            yield return new WaitForSeconds(1f);
-            laser.SetActive(false);
-            shooting = false;
+
+            yield return null;
         }
+        laser.SetActive(false);
         StartCoroutine(Move());
     }
 
@@ -76,6 +87,6 @@ public class AlienShoot : MonoBehaviour
             transform.Translate(Vector2.up * speed * Time.deltaTime);
             yield return null;
         }
-        StartCoroutine(Shoot());
+        StartCoroutine(Warning());
     }
 }
