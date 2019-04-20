@@ -24,12 +24,24 @@ public class AlienSpawner : MonoBehaviour
 
     IEnumerator SpawnAliens()
     {
-        while (true)
+        bool shooterSpawned = false;
+        while (!gc.gameOver)
         {
             yield return new WaitForSeconds(spawnTimer);
 
             int alienIndex = Random.Range(0, alienPrefabs.Length);
-            Instantiate(alienPrefabs[alienIndex], transform.position, Quaternion.identity);
+
+            if(alienIndex == 2 && !shooterSpawned)
+            {
+                shooterSpawned = true;
+                Instantiate(alienPrefabs[alienIndex], transform.position, Quaternion.identity);
+            }
+            else
+            {
+                shooterSpawned = false;
+                alienIndex = Random.Range(0, 2);
+                Instantiate(alienPrefabs[alienIndex], transform.position, Quaternion.identity);
+            }
         }
     }
 }

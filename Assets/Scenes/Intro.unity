@@ -414,6 +414,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameStartPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 8442001882560009152, guid: 831b3bf3e5ba6eb44b9b93350d93979e,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1800
+      objectReference: {fileID: 0}
+    - target: {fileID: 8442001882560009152, guid: 831b3bf3e5ba6eb44b9b93350d93979e,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 950
+      objectReference: {fileID: 0}
     - target: {fileID: 8442001883841851753, guid: 831b3bf3e5ba6eb44b9b93350d93979e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -518,16 +528,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8442001882560009152, guid: 831b3bf3e5ba6eb44b9b93350d93979e,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 1800
-      objectReference: {fileID: 0}
-    - target: {fileID: 8442001882560009152, guid: 831b3bf3e5ba6eb44b9b93350d93979e,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 950
       objectReference: {fileID: 0}
     - target: {fileID: 8442001884163262248, guid: 831b3bf3e5ba6eb44b9b93350d93979e,
         type: 3}

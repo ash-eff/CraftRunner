@@ -19,10 +19,11 @@ public class Player : MonoBehaviour
 
     private float camHeight;
 
-    public bool canSlash = true;
+    private bool canSlash = true;
     private bool secondJump = false;
-    bool dropped = false;
+    private bool dropped = false;
 
+    private AudioSource audioSource;
     private Animator anim;
     private GroundCheck groundCheck;
     private Rigidbody2D rb2d;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         anim = GetComponent<Animator>();
         cam = Camera.main;
         groundCheck = GetComponentInChildren<GroundCheck>();
@@ -115,6 +117,7 @@ public class Player : MonoBehaviour
         float timer = slashTime;
         anim.SetBool("Slash", true);
         sword.SetActive(true);
+        audioSource.Play();
         while (timer > 0f)
         {
             timer -= Time.deltaTime;

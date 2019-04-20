@@ -17,14 +17,33 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI starText;
     [SerializeField]
+    private TextMeshProUGUI finalStarText;
+    [SerializeField]
     private GameObject pauseMenu;
+    [SerializeField]
+    private GameObject gameOverScreen;
+    [SerializeField]
+    private GameObject deathAnim;
+    [SerializeField]
+    private Animator tally;
+    [SerializeField]
+    private AudioClip deathAudio;
+    [SerializeField]
+    private AudioClip boomAudio;
+    [SerializeField]
+    private AudioClip starAudio;
 
-    private float speed;
-    private float spawnTimer;
-    private int changeTimer;
+    AudioSource audioSource;
+
+    public float speed;
+    public float spawnTimer;
+    public int changeTimer;
     private int starCount;
     private bool paused;
     private bool gameStarted;
+
+    public bool playerDead;
+    public bool gameOver;
 
     public float Speed
     {
@@ -46,7 +65,9 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        Reset();
+        audioSource = GetComponent<AudioSource>();
+        audioSource.volume = 1f;
+        GameReset();
     }
 
     private void Update()
@@ -54,23 +75,76 @@ public class GameController : MonoBehaviour
         starText.text = "= " + starCount.ToString("000000");
         GameAdjust();
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !gameOver)
         {
             Paused();
         }
+
+        if(playerDead && !gameOver)
+        {
+            gameOver = true;
+            StartCoroutine(GameOverScreen());
+        }
+    }
+
+    IEnumerator GameOverScreen()
+    {
+        Player player = FindObjectOfType<Player>();
+        player.gameObject.SetActive(false);
+        audioSource.PlayOneShot(deathAudio);
+        GameObject deathAnimation = Instantiate(deathAnim, player.transform.position, Quaternion.identity);
+
+        yield return new WaitForSeconds(.5f);
+
+        float timescale = 1f;
+        
+        while(timescale > 0.01f)
+        {
+            timescale -= Time.deltaTime;
+            Time.timeScale = timescale;
+        
+            yield return null;
+        }
+        
+        Time.timeScale = 0;
+        gameOverScreen.SetActive(true);
+        StartCoroutine(TallyPoints());
+    }
+
+    IEnumerator TallyPoints()
+    {
+        int tempScore = 0;
+        tally.gameObject.SetActive(true);
+        audioSource.volume = .15f;
+        while(tempScore < starCount)
+        {
+            audioSource.PlayOneShot(starAudio);
+            tempScore++;
+            finalStarText.text = "Score: " + tempScore.ToString("000000");
+            yield return new WaitForSecondsRealtime(.05f);
+        }
+
+        audioSource.volume = 1f;
+        tally.gameObject.SetActive(false);
+        Debug.Log("Done");
+    }
+
+    public void EnemyDeath()
+    {
+        audioSource.PlayOneShot(boomAudio);
     }
 
     void GameAdjust()
     {
-        if (Time.time > changeTimer)
+        if (Time.timeSinceLevelLoad > changeTimer)
         {
             changeTimer += adjustAmount;
-            float adjust = spawnTimer * .2f;
+            float adjust = spawnTimer * .1f;
             float speedAdj = speed + .5f;
 
-            if (spawnTimer - adjust <= .5f)
+            if (spawnTimer - adjust <= 2f)
             {
-                spawnTimer = .5f;
+                spawnTimer = 2f;
             }
             else
             {
@@ -103,24 +177,27 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void Reset()
+    private void GameReset()
     {
+        Time.timeScale = 1;
         speed = baseSpeed;
         spawnTimer = baseSpawnTimer;
         changeTimer = baseChangeTimer;
+        playerDead = false;
+        gameOver = false;
     }
 
     public void Retry()
     {
         Paused();
-        Reset();
+        GameReset();
         SceneManager.LoadScene(1);
     }
 
     public void Quit()
     {
         Paused();
-        Reset();
+        GameReset();
         SceneManager.LoadScene(0);
     }
 }

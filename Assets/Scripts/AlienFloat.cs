@@ -11,14 +11,18 @@ public class AlienFloat : MonoBehaviour
 
     private GameController gc;
     private Camera cam;
+    private AudioSource audioSource;
+
     private float widthAndOffset;
 
     protected void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         gc = FindObjectOfType<GameController>();
         cam = Camera.main;
         widthAndOffset = cam.aspect * cam.orthographicSize * 2f;
         transform.position = new Vector3(widthAndOffset, 0f);
+        StartCoroutine(MakeNoise());
     }
 
     protected void Update()
@@ -33,6 +37,17 @@ public class AlienFloat : MonoBehaviour
         if (transform.position.x < -widthAndOffset)
         {
             Destroy(gameObject);
+        }
+    }
+
+    IEnumerator MakeNoise()
+    {
+        yield return new WaitForSeconds(.5f);
+        while (true)
+        {
+            audioSource.Play();
+
+            yield return new WaitForSeconds(2f);
         }
     }
 }

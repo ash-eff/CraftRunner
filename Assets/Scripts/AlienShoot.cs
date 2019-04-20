@@ -18,10 +18,14 @@ public class AlienShoot : MonoBehaviour
 
     private bool moving = true;
 
+    private AudioSource audioSource;
+    private GameController gc;
     private Camera cam;
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+        gc = FindObjectOfType<GameController>();
         cam = Camera.main;
         screenWidthAndOffset = cam.aspect * cam.orthographicSize + 2f;
         stopPosX = cam.aspect * cam.orthographicSize - 2f;
@@ -58,6 +62,7 @@ public class AlienShoot : MonoBehaviour
     {
         float timer = 1f;
         laser.SetActive(true);
+        audioSource.Play();
         while (timer > 0)
         {
             timer -= Time.deltaTime;
@@ -65,11 +70,9 @@ public class AlienShoot : MonoBehaviour
             Debug.DrawRay(transform.position, Vector3.left * 25f, Color.red);
             if (hit)
             {
-                Debug.Log("Hit: " + hit.transform.name);
                 if(hit.transform.tag == "DamageTrigger")
                 {
-                    Debug.Log("Hit");
-                    Destroy(hit.transform.parent.gameObject);
+                    gc.playerDead = true;
                 }
             }
 

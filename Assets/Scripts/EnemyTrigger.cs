@@ -4,13 +4,20 @@ using UnityEngine;
 
 public class EnemyTrigger : MonoBehaviour
 {
+    Player player;
+    GameController gc;
+
+    private void Start()
+    {
+        player = GetComponentInParent<Player>();
+        gc = FindObjectOfType<GameController>();
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.transform.tag == "Alien")
         {
-            Debug.Log("You Died");
-            // for now
-            Destroy(transform.parent.gameObject);
+            gc.playerDead = true;
         }
     }
 }

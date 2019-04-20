@@ -34,7 +34,7 @@ public class StarSpawner : MonoBehaviour
     {
         screenWidth = cam.aspect * cam.orthographicSize + 1;
         timeBetweenItems = gc.Speed / (gc.Speed * 4f);
-        if (spawning)
+        if (spawning && !gc.gameOver)
         {
             spawning = false;
             StartCoroutine(SpawnStars());

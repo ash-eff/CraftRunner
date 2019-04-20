@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class StarCollector : MonoBehaviour
 {
-
+    AudioSource audioSource;
     GameController gc;
 
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         gc = FindObjectOfType<GameController>();
     }
 
@@ -16,6 +17,7 @@ public class StarCollector : MonoBehaviour
     {
         if (collision.transform.tag == "Star")
         {
+            audioSource.Play();
             gc.StarCount++;
             Destroy(collision.gameObject);
         }
